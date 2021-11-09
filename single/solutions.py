@@ -108,7 +108,7 @@ def assignment4():
 
 def main():
     # Select assignment 
-    assignment4()
+    assignment3_2()
 
 if __name__ == '__main__':
     main()

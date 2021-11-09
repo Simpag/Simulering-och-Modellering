@@ -21,12 +21,16 @@ from pylab import *
 G = 9.8  # gravitational acceleration
 
 # Kinetic energy
+
+
 def Ekin(osc):
     return 1 / (2.0 * osc.m * osc.L * osc.L) * (
-            osc.p1 * osc.p1 + 2.0 * osc.p2 * osc.p2 - 2.0 * osc.p1 * osc.p2 * cos(osc.q1 - osc.q2)) / (
-                   1 + (sin(osc.q1 - osc.q2)) ** 2)
+        osc.p1 * osc.p1 + 2.0 * osc.p2 * osc.p2 - 2.0 * osc.p1 * osc.p2 * np.cos(osc.q1 - osc.q2)) / (
+        1 + (np.sin(osc.q1 - osc.q2)) ** 2)
 
 # Potential energy
+
+
 def Epot(osc):
     return osc.m * G * osc.L * (3 - 2 * math.cos(osc.q1) - math.cos(osc.q2))
 
@@ -35,11 +39,11 @@ def Epot(osc):
 class Oscillator:
 
     def p2squaredFromH(self):
-        return (self.E - Epot(self)) * (1 + (sin(self.q1 - self.q2)) ** 2) * self.m * self.L * self.L
+        return (self.E - Epot(self)) * (1 + (np.sin(self.q1 - self.q2)) ** 2) * self.m * self.L * self.L
 
     # Initial condition is [q1, q2, p1, p2]; p2 is however re-obtained based on the value of E
     # therefore you can use any value for init_cond[3]
-    def __init__(self, m=1, L=1, t0=0, E=15, init_cond=[0.0, 0.0, 0.0, -1.0]) :
+    def __init__(self, m=1, L=1, t0=0, E=15, init_cond=[0.0, 0.0, 0.0, -1.0], print_init = True):
         self.m = m      # mass of the pendulum bob
         self.L = L      # arm length
         self.t = t0     # the initial time
@@ -57,12 +61,13 @@ class Oscillator:
             if (p2squared >= 0):
                 self.p2 = math.sqrt(p2squared)
         self.q2_prev = self.q2
-        print("Initialization:")
-        print("E  = "+str(self.E))
-        print("q1 = "+str(self.q1))
-        print("q2 = "+str(self.q2))
-        print("p1 = "+str(self.p1))
-        print("p2 = "+str(self.p2))
+        if print_init:
+            print("Initialization:")
+            print("E  = "+str(self.E))
+            print("q1 = "+str(self.q1))
+            print("q2 = "+str(self.q2))
+            print("p1 = "+str(self.p1))
+            print("p2 = "+str(self.p2))
 
 
 # Class for storing observables for an oscillator
@@ -84,27 +89,27 @@ class Observables:
 # Derivate of H with respect to p1
 def dHdp1(q1, q2, p1, p2, m, L):
     # TODO: Write and return the formula for the derivative of H with respect to p1 here
-
+    return (p1-p2*np.cos(q1-q2)) / (L**2 * m * (np.sin(q1-q2)**2 + 1))
 
 
 # Derivate of H with respect to p2
 def dHdp2(q1, q2, p1, p2, m, L):
     # TODO: Write and return the formula for the derivative of H with respect to p2 here
-
+    return (2*p2 - p1*np.cos(q1-q2)) / (L**2 * m * (np.sin(q1-q2)**2 + 1))
 
 
 # Derivate of H with respect to q1
 def dHdq1(q1, q2, p1, p2, m, L):
     return 1 / (2.0 * m * L * L) * (
-        -2 * (p1 * p1 + 2 * p2 * p2) * cos(q1 - q2) + p1 * p2 * (4 + 2 * (cos(q1 - q2)) ** 2)) * sin(
-            q1 - q2) / (1 + (sin(q1 - q2)) ** 2) ** 2 + m * G * L * 2.0 * sin(q1)
+        -2 * (p1 * p1 + 2 * p2 * p2) * np.cos(q1 - q2) + p1 * p2 * (4 + 2 * (np.cos(q1 - q2)) ** 2)) * np.sin(
+            q1 - q2) / (1 + (np.sin(q1 - q2)) ** 2) ** 2 + m * G * L * 2.0 * np.sin(q1)
 
 
 # Derivate of H with respect to q2
 def dHdq2(q1, q2, p1, p2, m, L):
     return 1 / (2.0 * m * L * L) * (
-        2 * (p1 * p1 + 2 * p2 * p2) * cos(q1 - q2) - p1 * p2 * (4 + 2 * (cos(q1 - q2)) ** 2)) * sin(q1 - q2) / (
-            1 + (sin(q1 - q2)) ** 2) ** 2 + m * G * L * sin(q2)
+        2 * (p1 * p1 + 2 * p2 * p2) * np.cos(q1 - q2) - p1 * p2 * (4 + 2 * (np.cos(q1 - q2)) ** 2)) * np.sin(q1 - q2) / (
+            1 + (np.sin(q1 - q2)) ** 2) ** 2 + m * G * L * np.sin(q2)
 
 
 class BaseIntegrator:
@@ -114,9 +119,8 @@ class BaseIntegrator:
 
     def integrate(self,
                   osc,
-                  obs, 
+                  obs,
                   ):
-
         """ Perform a single integration step """
         self.timestep(osc, obs)
 
@@ -130,8 +134,10 @@ class BaseIntegrator:
         obs.ekin.append(Ekin(osc))
         obs.etot.append(Epot(osc) + Ekin(osc))
         # TODO: Append values for the Poincare map
-        
 
+        if abs(osc.q2) < 0.005 and osc.p2 > 0:
+            obs.poincare_q1.append(osc.q1)
+            obs.poincare_p1.append(osc.p1)
 
     def timestep(self, osc, obs):
         """ Virtual function: implemented by the child classes """
@@ -144,7 +150,22 @@ class EulerRichardsonIntegrator(BaseIntegrator):
         dt = self.dt
         osc.t += dt
         # TODO: Add integration here
-        
+        # see page 46 for algorithm details
+        # eq. 6.37 and 6.52
+
+        p1mid = osc.p1 - dHdq1(osc.q1, osc.q2, osc.p1,
+                               osc.p2, osc.m, osc.L) * dt/2
+        p2mid = osc.p2 - dHdq2(osc.q1, osc.q2, osc.p1,
+                               osc.p2, osc.m, osc.L) * dt/2
+        q1mid = osc.q1 + dHdp1(osc.q1, osc.q2, osc.p1,
+                               osc.p2, osc.m, osc.L) * dt/2
+        q2mid = osc.q2 + dHdp2(osc.q1, osc.q2, osc.p1,
+                               osc.p2, osc.m, osc.L) * dt/2
+
+        osc.p1 = osc.p1 - dHdq1(q1mid, q2mid, p1mid, p2mid, osc.m, osc.L) * dt
+        osc.p2 = osc.p2 - dHdq2(q1mid, q2mid, p1mid, p2mid, osc.m, osc.L) * dt
+        osc.q1 = osc.q1 + dHdp1(q1mid, q2mid, p1mid, p2mid, osc.m, osc.L) * dt
+        osc.q2 = osc.q2 + dHdp2(q1mid, q2mid, p1mid, p2mid, osc.m, osc.L) * dt
 
 
 # Runge-Kutta 4 integrator
@@ -153,7 +174,6 @@ class RK4Integrator(BaseIntegrator):
         dt = self.dt
         osc.t += dt
         # TODO: Add integration here
-        
 
 
 # Animation function which integrates a few steps and return a line for the pendulum
@@ -171,46 +191,52 @@ def animate(framenr, osc, obs, integrator, pendulum_lines, stepsperframe):
 
 class Simulation:
 
-    def reset(self, osc=Oscillator()) :
+    def reset(self, osc=Oscillator(print_init = False)):
         self.oscillator = osc
         self.obs = Observables()
 
-    def __init__(self, osc=Oscillator()) :
+    def __init__(self, osc=Oscillator(print_init = False)):
         self.reset(osc)
 
-    def plot_observables(self) :
+    def plot_observables(self, plot_title):
 
         plt.figure()
+        plt.title(plot_title)
         plt.xlabel('q1')
         plt.ylabel('p1')
         plt.plot(self.obs.q1list, self.obs.p1list)
-        plt.tight_layout()  # adapt the plot area tot the text with larger fonts 
+        plt.tight_layout()  # adapt the plot area tot the text with larger fonts
 
         plt.figure()
+        plt.title(plot_title)
         plt.xlabel('q2')
         plt.ylabel('p2')
         plt.plot(self.obs.q2list, self.obs.p2list)
-        plt.tight_layout()  # adapt the plot area tot the text with larger fonts 
+        plt.tight_layout()  # adapt the plot area tot the text with larger fonts
 
         plt.figure()
+        plt.title("Poincare Plot - " + plot_title)
         plt.xlabel('q1')
         plt.ylabel('p1')
         plt.plot(self.obs.poincare_q1, self.obs.poincare_p1, 'ro')
         plt.tight_layout()  # adapt the plot area tot the text with larger fonts
 
         plt.figure()
+        plt.title(plot_title)
         plt.xlabel('time')
         plt.ylabel('energy')
-        plt.plot(self.obs.time, self.obs.epot, self.obs.time, self.obs.ekin, self.obs.time, self.obs.etot)
+        plt.plot(self.obs.time, self.obs.epot, self.obs.time,
+                 self.obs.ekin, self.obs.time, self.obs.etot)
         plt.legend(('Epot', 'Ekin', 'Etot'))
-        plt.tight_layout()  # adapt the plot area tot the text with larger fonts 
+        plt.tight_layout()  # adapt the plot area tot the text with larger fonts
         plt.show()
-
 
     def run(self,
             integrator,
             tmax=30.,   # final time
-            outfile='energy1.pdf'
+            outfile='energy1.pdf',
+            show_plot=True, 
+            plot_title=""
             ):
 
         n = int(tmax / integrator.dt)
@@ -219,17 +245,18 @@ class Simulation:
             integrator.integrate(self.oscillator, self.obs)
 
         # If you experience problems visualizing the animation and/or
-        # the following figures comment out the next line 
-        plt.waitforbuttonpress(30)
+        # the following figures comment out the next line
+        # plt.waitforbuttonpress(30)
 
-        self.plot_observables()
+        if show_plot:
+            self.plot_observables(plot_title)
 
     def run_animate(self,
-            integrator,
-            tmax=30.,           # final time
-            stepsperframe=5,    # how many integration steps between visualising frames
-            outfile='energy1.pdf'
-            ):
+                    integrator,
+                    tmax=30.,           # final time
+                    stepsperframe=5,    # how many integration steps between visualising frames
+                    outfile='energy1.pdf'
+                    ):
 
         numframes = int(tmax / (stepsperframe * integrator.dt))
 
@@ -242,32 +269,36 @@ class Simulation:
 
         # Call the animator, blit=True means only re-draw parts that have changed
         anim = animation.FuncAnimation(fig, animate,  # init_func=init,
-                                       fargs=[self.oscillator, self.obs, integrator, pendulum_lines, stepsperframe],
+                                       fargs=[
+                                           self.oscillator, self.obs, integrator, pendulum_lines, stepsperframe],
                                        frames=numframes, interval=25, blit=True, repeat=False)
         plt.show()
 
         # If you experience problems visualizing the animation and/or
-        # the following figures comment out the next line 
+        # the following figures comment out the next line
         plt.waitforbuttonpress(30)
 
         self.plot_observables()
- 
-# It's good practice to encapsulate the script execution in 
-# a main() function (e.g. for profiling reasons)
-def main() :
 
-    # Be sure you are passing the correct initial conditions!
-    oscillator = Oscillator(m=1, L=1, t0=0, E=15) 
-    
+# It's good practice to encapsulate the script execution in
+# a main() function (e.g. for profiling reasons)
+
+
+def main():
+    # Be sure you are passing the correct initial conditions!, init_cond = [q1, q2, p1, p2] (p2 is not used)
+    oscillator = Oscillator(m=1, L=1, t0=0, E=15, init_cond=[1, 1, 0, -1])
+
     # Create the simulation object for your oscillator instance:
     simulation = Simulation(oscillator)
 
     # Run the simulation using the various integration schemes (that you are asked to implement):
-    simulation.run(integrator=EulerRichardsonIntegrator(),  tmax=100.)
-    # simulation.run_animate(integrator=RK4Integrator())
+    #simulation.run(integrator=EulerRichardsonIntegrator(),  tmax=100.)
+    simulation.run(integrator=EulerRichardsonIntegrator(dt=0.001))
+
 
 # Calling 'main()' if the script is executed.
 # If the script is instead just imported, main is not called (this can be useful if you want to
 # write another script importing and utilizing the functions and classes defined in this one)
-if __name__ == "__main__" :
+if __name__ == "__main__":
     main()
+    
