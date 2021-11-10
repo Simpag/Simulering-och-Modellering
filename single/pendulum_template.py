@@ -265,6 +265,7 @@ class Simulation:
                     tmax=30.,               # final time
                     stepsperframe=5,        # how many integration steps between visualising frames
                     title="simulation",     # Name of output file and title shown at the top
+                    save_gif = False
                     ):
 
         numframes = int(tmax / (stepsperframe * integrator.dt))
@@ -281,8 +282,11 @@ class Simulation:
                                        fargs=[simsystem, self.oscillator, self.obs,
                                               integrator, pendulum_line, stepsperframe],
                                        frames=numframes, interval=25, blit=True, repeat=False)
-        plt.show()
-
+        if save_gif:
+            writergif = animation.PillowWriter(fps=16)
+            anim.save(f"{title}.gif", writer=writergif)
+        else:
+            plt.show()
         # If you experience problems visualizing the animation and/or
         # the following figures comment out the next line
         plt.waitforbuttonpress(30)

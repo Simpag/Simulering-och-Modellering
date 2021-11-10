@@ -9,24 +9,24 @@ def assignment1():
         simulation = Simulation(oscillator)
 
         # Harmonic
-        simulation.run(simsystem=Harmonic(), integrator=EulerCromerIntegrator(), title=f'Harmonic-Euler-Cromer, Theta:{theta}', tmax=70)
+        simulation.run(simsystem=Harmonic(), integrator=EulerCromerIntegrator(), title=f'Harmonic-Euler-Cromer, Theta={theta}', tmax=70)
         oscillator = Oscillator(m=1, c=9, theta0=theta*np.pi, dtheta0=0)
         simulation = Simulation(oscillator)
-        simulation.run(simsystem=Harmonic(), integrator=VerletIntegrator(), title=f'Harmonic-Verlet, Theta:{theta}', tmax=70)
+        simulation.run(simsystem=Harmonic(), integrator=VerletIntegrator(), title=f'Harmonic-Verlet, Theta={theta}', tmax=70)
         oscillator = Oscillator(m=1, c=9, theta0=theta*np.pi, dtheta0=0)
         simulation = Simulation(oscillator)
-        simulation.run(simsystem=Harmonic(), integrator=RK4Integrator(), title=f'Harmonic-RK, Theta:{theta}', tmax=70)
+        simulation.run(simsystem=Harmonic(), integrator=RK4Integrator(), title=f'Harmonic-RK, Theta={theta}', tmax=70)
 
         # Pendulum
         oscillator = Oscillator(m=1, c=9, theta0=theta*np.pi, dtheta0=0)
         simulation = Simulation(oscillator)
-        simulation.run(simsystem=Pendulum(), integrator=EulerCromerIntegrator(), title=f'Pendulum-Euler-Cromer, Theta:{theta}', tmax=70)
+        simulation.run(simsystem=Pendulum(), integrator=EulerCromerIntegrator(), title=f'Pendulum-Euler-Cromer, Theta={theta}', tmax=70)
         oscillator = Oscillator(m=1, c=9, theta0=theta*np.pi, dtheta0=0)
         simulation = Simulation(oscillator)
-        simulation.run(simsystem=Pendulum(), integrator=VerletIntegrator(), title=f'Pendulum-Verlet, Theta:{theta}', tmax=70)
+        simulation.run(simsystem=Pendulum(), integrator=VerletIntegrator(), title=f'Pendulum-Verlet, Theta={theta}', tmax=70)
         oscillator = Oscillator(m=1, c=9, theta0=theta*np.pi, dtheta0=0)
         simulation = Simulation(oscillator)
-        simulation.run(simsystem=Pendulum(), integrator=RK4Integrator(), title=f'Pendulum-RK, Theta:{theta}', tmax=70)
+        simulation.run(simsystem=Pendulum(), integrator=RK4Integrator(), title=f'Pendulum-RK, Theta={theta}', tmax=70)
 
 def assignment2():
     # Determine the period
@@ -63,7 +63,7 @@ def assignment2():
 def assignment3():
     oscillator = Oscillator(m=1, c=9, theta0=1, dtheta0=0, gamma=5.908207397460938)
     simulation = Simulation(oscillator)
-    simulation.run_animate(simsystem=DampenedHarmonic(), integrator=RK4Integrator(), tmax=80, title="Harmonic Dampening")
+    simulation.run_animate(simsystem=DampenedHarmonic(), integrator=RK4Integrator(), tmax=80, title="Harmonic Dampening, gamma = 5.9", save_gif=True)
 
 def assignment3_1():
     gammas = [0.5, 1, 2, 3]
@@ -116,7 +116,7 @@ def assignment4():
 
 def main():
     # Select assignment 
-    assignment4()
+    assignment1()
 
 if __name__ == '__main__':
     main()
