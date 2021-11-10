@@ -3,24 +3,30 @@ from pendulum_template import *
 def assignment1():
     # Be sure you are passing the correct initial conditions!
     initTheta = [0.1, 0.3, 0.5]
-    oscillators = []
-    simulations = []
 
     for theta in initTheta:
-        oscillators.append(Oscillator(m=1, c=9, theta0=theta*np.pi, dtheta0=0))
-
-        # Create the simulation object for your oscillator instance:
-        simulations.append(Simulation(oscillators[-1]))
+        oscillator = Oscillator(m=1, c=9, theta0=theta*np.pi, dtheta0=0)
+        simulation = Simulation(oscillator)
 
         # Harmonic
-        simulations[-1].run(simsystem=Harmonic(), integrator=EulerCromerIntegrator(), title=f'Harmonic-Euler-Cromer, Theta:{theta}', tmax=70)
-        simulations[-1].run(simsystem=Harmonic(), integrator=VerletIntegrator(), title=f'Harmonic-Verlet, Theta:{theta}', tmax=70)
-        simulations[-1].run(simsystem=Harmonic(), integrator=RK4Integrator(), title=f'Harmonic-RK, Theta:{theta}', tmax=70)
+        simulation.run(simsystem=Harmonic(), integrator=EulerCromerIntegrator(), title=f'Harmonic-Euler-Cromer, Theta:{theta}', tmax=70)
+        oscillator = Oscillator(m=1, c=9, theta0=theta*np.pi, dtheta0=0)
+        simulation = Simulation(oscillator)
+        simulation.run(simsystem=Harmonic(), integrator=VerletIntegrator(), title=f'Harmonic-Verlet, Theta:{theta}', tmax=70)
+        oscillator = Oscillator(m=1, c=9, theta0=theta*np.pi, dtheta0=0)
+        simulation = Simulation(oscillator)
+        simulation.run(simsystem=Harmonic(), integrator=RK4Integrator(), title=f'Harmonic-RK, Theta:{theta}', tmax=70)
 
         # Pendulum
-        simulations[-1].run(simsystem=Pendulum(), integrator=EulerCromerIntegrator(), title=f'Pendulum-Euler-Cromer, Theta:{theta}', tmax=70)
-        simulations[-1].run(simsystem=Pendulum(), integrator=VerletIntegrator(), title=f'Pendulum-Verlet, Theta:{theta}', tmax=70)
-        simulations[-1].run(simsystem=Pendulum(), integrator=RK4Integrator(), title=f'Pendulum-RK, Theta:{theta}', tmax=70)
+        oscillator = Oscillator(m=1, c=9, theta0=theta*np.pi, dtheta0=0)
+        simulation = Simulation(oscillator)
+        simulation.run(simsystem=Pendulum(), integrator=EulerCromerIntegrator(), title=f'Pendulum-Euler-Cromer, Theta:{theta}', tmax=70)
+        oscillator = Oscillator(m=1, c=9, theta0=theta*np.pi, dtheta0=0)
+        simulation = Simulation(oscillator)
+        simulation.run(simsystem=Pendulum(), integrator=VerletIntegrator(), title=f'Pendulum-Verlet, Theta:{theta}', tmax=70)
+        oscillator = Oscillator(m=1, c=9, theta0=theta*np.pi, dtheta0=0)
+        simulation = Simulation(oscillator)
+        simulation.run(simsystem=Pendulum(), integrator=RK4Integrator(), title=f'Pendulum-RK, Theta:{theta}', tmax=70)
 
 def assignment2():
     # Determine the period
@@ -51,13 +57,13 @@ def assignment2():
     plt.xlabel(r'$\theta$')
     plt.ylabel('Period Time (s)')
     plt.legend()
-    #plt.savefig("plots" + "period" + ".png")
+    #plt.savefig("single/plots/period.png")
     plt.show()
 
 def assignment3():
     oscillator = Oscillator(m=1, c=9, theta0=1, dtheta0=0, gamma=5.908207397460938)
     simulation = Simulation(oscillator)
-    simulation.run_animate(simsystem=DampenedHarmonic(), integrator=EulerCromerIntegrator(), tmax=100, title="HarmonicDampening")
+    simulation.run_animate(simsystem=DampenedHarmonic(), integrator=RK4Integrator(), tmax=80, title="Harmonic Dampening")
 
 def assignment3_1():
     gammas = [0.5, 1, 2, 3]
@@ -65,11 +71,11 @@ def assignment3_1():
     for gamma in gammas:
         oscillator = Oscillator(m=1, c=9, theta0=1, dtheta0=0, gamma=gamma)
         simulation = Simulation(oscillator)
-        simulation.run(simsystem=DampenedHarmonic(), integrator=EulerCromerIntegrator(), tmax=100, title=f"HarmonicDampening-RK4, gamma: {gamma}")
+        simulation.run(simsystem=DampenedHarmonic(), integrator=RK4Integrator(), tmax=70, title=f"Harmonic Dampening, gamma: {gamma}")
 
 def assignment3_2():
     # find the smallest gamma such that the pendulum doesnot pass x = 0
-    tolerance = 0.001
+    tolerance = 0.0001
     left = 0 # min gamma
     right = 30 # max gamma
     middle = 0
@@ -97,18 +103,20 @@ def assignment4():
     # Plot the phase space portait
     oscillator = Oscillator(m=1, c=9, theta0=np.pi*0.5, dtheta0=0, gamma=1)
     simulation = Simulation(oscillator)
-    simulation.run(simsystem=DampenedPendulum(), integrator=EulerCromerIntegrator(), tmax=100, show_plot=False)
+    simulation.run(simsystem=DampenedPendulum(), integrator=RK4Integrator(), tmax=100, show_plot=False)
 
     plt.clf()
     plt.title("Phase space potrait")
     plt.plot(simulation.obs.pos, simulation.obs.vel)
     plt.xlabel(r'$\theta$')
     plt.ylabel(r'$\dot \theta$')
+    plt.grid()
+    plt.savefig("single/plots/phasespace.png")
     plt.show()
 
 def main():
     # Select assignment 
-    assignment3_2()
+    assignment4()
 
 if __name__ == '__main__':
     main()

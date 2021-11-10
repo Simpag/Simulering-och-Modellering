@@ -208,7 +208,7 @@ class Simulation:
         self.reset(osc)
 
     def plot_observables(self, title="simulation"):
-        folder = "plots/"
+        folder = "single/plots/"
         plt.clf()
         plt.title(title)
         plt.plot(self.obs.time, self.obs.pos, label="Position")
