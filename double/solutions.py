@@ -1,5 +1,5 @@
 from doublependulum_template import *
-from alive_progress import alive_bar
+from alive_progress import alive_bar # pip3 install alive_progress
 
 def assignment5_a():
     EList = [1, 5, 10, 15, 40]
@@ -86,7 +86,11 @@ def assignment5_c():
 
 
 def main():
-    assignment5_c()
+    #assignment5_c()
+    oscillator = Oscillator(m=1, L=1, t0=0, E=40, init_cond=[1, 1, 0, -1], print_init=False) # Initial conditions are randomized
+    simulation = Simulation(oscillator)
+    simulation.run_animate(integrator=EulerRichardsonIntegrator(
+        dt=0.001), tmax=100)
     
 
 # Calling 'main()' if the script is executed.

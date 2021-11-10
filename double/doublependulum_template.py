@@ -198,7 +198,7 @@ class Simulation:
     def __init__(self, osc=Oscillator(print_init = False)):
         self.reset(osc)
 
-    def plot_observables(self, plot_title):
+    def plot_observables(self, plot_title=""):
 
         plt.figure()
         plt.title(plot_title)
