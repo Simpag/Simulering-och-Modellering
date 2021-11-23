@@ -15,6 +15,14 @@ class Points:
         self.pointList.append(point)
 
     def step(self, x_step=0, y_step=0, self_avoid=False):
+        """
+        Takes a step with length of x_step and y_step
+
+        If self_avoid is on then it will only make the step if
+        it haven't visited the new location yet
+
+        Returns True on successful step, else False
+        """
         p = self.pointList[-1].copy()   # Copy the last point
         p.x += x_step                   # Take a step
         p.y += y_step
@@ -30,6 +38,13 @@ class Points:
             return True
 
     def get_as_lists(self):
+        """
+        Used when plotting the points,
+        Ex: x,y = points.get_as_list()
+            plot(x,y)
+
+        Returns list of x and y values
+        """
         x, y = [], []
         for p in self.pointList:
             x.append(p.x)

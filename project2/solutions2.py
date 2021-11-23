@@ -1,3 +1,4 @@
+import numpy as np
 from car import Car
 import random as rn
 import math
@@ -6,9 +7,10 @@ from matplotlib import animation
 from alive_progress import alive_bar # pip3 install alive_progress
 
 class sim:
-    def __init__(self, nCars, roadLength, vmax, p, steps):
+    def __init__(self, nCars, roadLength, vmax, p, steps, startingPos = []):
         # randomize the starting pos
-        startingPos = sorted([int(rn.random() * roadLength) for i in range(nCars)])
+        if startingPos == []:
+            startingPos = sorted([int(rn.random() * roadLength) for i in range(nCars)])
         self.cars = [Car(startPos = startingPos[i]) for i in range(nCars)]
 
         self.roadLength = roadLength
@@ -16,7 +18,7 @@ class sim:
         self.p = p
         self.steps = steps
 
-    def loop(self):
+    def run(self):
         cnt = self.steps
         while cnt > 0:
             cnt -= 1
@@ -63,11 +65,11 @@ def plot1(s: sim):
     plt.grid()
     plt.show()
 
-def caranim(s: sim):
+def roundAnim(s: sim):
     positions     = [0, ] * len(s.cars)
     theta         = [0, ] * len(s.cars)
-    r             = [0, ] * len(s.cars)
-    color         = [0, ] * len(s.cars)
+    r             = [1, ] * len(s.cars)
+    color         = [i for i in range(len(s.cars))]
 
     fig = plt.figure()
     ax = fig.add_subplot(111, projection='polar')
@@ -87,10 +89,11 @@ def caranim(s: sim):
 
     plt.show()
 
+
 def flowratePlot():
-    ncars = list(range(0,800, 10))
+    ncars = list(range(1,250, 10))
     iterations = 25
-    roadLength=1000
+    roadLength = 50
 
     flowRates = []
     densities = []
@@ -99,7 +102,7 @@ def flowratePlot():
             _flowRates = [0, ] * iterations
             for i in range(iterations):
                 s = sim(nCars=n, roadLength=roadLength, vmax=2, p=0.5, steps=1000)
-                s.loop()
+                s.run()
                 _flowRates[i] = s.getFlowRate()
 
             flowRates.append(sum(_flowRates) / iterations)
@@ -108,17 +111,59 @@ def flowratePlot():
 
     plt.title("Fundamental Diagram")
     plt.plot(densities, flowRates)
-    plt.xlabel(r'Density')
-    plt.ylabel(r'Flow rate')
+    plt.xlabel('Density')
+    plt.ylabel('Flow rate')
     plt.grid()
     plt.show()
 
+################################################################
+
+def getvar(iterations):
+    flowRates = [0, ] * iterations
+
+    for i in range(iterations):
+        startingPos = [i for i in range(25)] #sorted([int(rn.random() * 50) for i in range(25)])
+        s = sim(nCars=25, roadLength=50, vmax=2, p=0.5, steps=100, startingPos=startingPos)
+        s.run()
+        flowRates[i] = s.getFlowRate()
+
+    return np.var(flowRates)
+
+def b():
+    target = 0.001
+    accuracy = target * 0.1
+    left = 20
+    right = 150
+
+    while left < right:
+        middle = int((left + right) / 2)
+        ans = np.sqrt(getvar(middle)/(middle-1))
+        print(ans, middle, left, right)
+
+        if abs(ans - target) < accuracy:
+            print(f"iterations: {middle}, std: {ans}")
+            return
+
+        if ans > target:
+            left = middle + 1
+        elif ans < target:
+            right = middle - 1
+
+    print("not found")
+
 
 def main():
-    s = sim(nCars=10, roadLength=100, vmax=2, p=0.5, steps=1000)
+    if False:
+        s = sim(nCars=10, roadLength=50, vmax=2, p=0.5, steps=1000)
 
-    s.loop()
-    caranim(s)
+        s.run()
+        roundAnim(s)
+
+    if False:
+        flowratePlot()
+
+    if True:
+        b()
 
 if __name__ == '__main__':
-    flowratePlot()
+    main()
