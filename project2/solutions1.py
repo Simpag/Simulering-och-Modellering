@@ -30,26 +30,39 @@ def walk(N, random_func):
 
 
 def a():
-    N = 100
-    points = walk(N, lambda: int(rnd.random() * 4))
+    points = [walk(10, lambda: int(rnd.random() * 4)), ]
+    points.append(walk(100, lambda: int(rnd.random() * 4)))
+    points.append(walk(1000, lambda: int(rnd.random() * 4)))
 
-    x, y = points.get_as_lists()
-    plt.plot(x, y)
+    for p in range(len(points)):
+        x, y = points[p].get_as_lists()
+        plt.subplot(2,2,p+1)
+        plt.title(f"Walk with {len(x)-1} steps")
+        plt.grid()
+        plt.plot(x, y)
     plt.show()
 
 
 def b():
-    r0 = 1
+    r0 = 8
     a = 3
-    c = 4
-    m = 128
+    c = 16
+    m = 256
     br = BadRandom(a, c, m, r0)
 
-    N = 100                  # Number of steps
-    points = walk(N, br.random)
+    points = [walk(10, br.random), ]
+    points.append(walk(100, br.random))
+    points.append(walk(1000, br.random))
+    points.append(walk(10000, br.random))
 
-    x, y = points.get_as_lists()
-    plt.plot(x, y)
+
+    for p in range(len(points)):
+        x, y = points[p].get_as_lists()
+        plt.subplot(2,2,p+1)
+        plt.title(f"Walk with {len(x)-1} steps")
+        plt.grid()
+        plt.plot(x, y)
+    plt.suptitle(rf"Random walk with $r_0$: {r0}, $a$: {a}, $c$: {c}, $m$: {m}")
     plt.show()
 
 
@@ -75,6 +88,16 @@ def c():
 
         return np.sqrt((np.average(dist_squared)-np.average(dist)**2) * iterations / (iterations - 1))
 
+    def STDE(N, iterations):
+        """Standard error estimate"""
+        plist = []
+        for i in range(iterations):
+            points = walk(N, random_func)
+            plist.append(walk_length_squared(points)**0.5)
+
+        return np.sqrt(np.var(plist)/(iterations-1))
+
+
     def walk_length_squared(points):
         start = points[0]
         end = points[-1]
@@ -86,19 +109,19 @@ def c():
     NList = list(range(0, 10**3, 10))  # A list from 0 to 1000
     avg_iterations = 100
 
-    if False:
+    if True:
         rmsd = []
         with alive_bar(len(NList), title="Processing RMSD") as bar:
             for N in NList:
                 rmsd.append(RMSD(N, avg_iterations))
                 bar()
 
-        plt.title(f"RMSD for random walk with rnd.random()")
+        #plt.title(f"RMSD for random walk with rnd.random()")
         plt.xlabel('Number of steps')
-        plt.ylabel('RMSD')
-        plt.plot(NList, rmsd)
-        plt.tight_layout()  # adapt the plot area tot the text with larger fonts
-        plt.show()
+        #plt.ylabel('RMSD')
+        plt.plot(NList, rmsd, label="RMSD")
+        #plt.tight_layout()  # adapt the plot area tot the text with larger fonts
+        #plt.show()
 
     if True:
         rmsf = []
@@ -107,14 +130,30 @@ def c():
                 rmsf.append(RMSF(N, avg_iterations))
                 bar()
 
-        plt.title(f"RMSF for random walk with rnd.random()")
+        #plt.title(f"RMSF for random walk with rnd.random()")
         plt.xlabel('Number of steps')
-        plt.ylabel('RMSF')
-        plt.plot(NList, rmsf)
-        plt.tight_layout()  # adapt the plot area tot the text with larger fonts
-        plt.show()
+        #plt.ylabel('RMSF')
+        plt.plot(NList, rmsf, label="RMSF")
+        #plt.tight_layout()  # adapt the plot area tot the text with larger fonts
+        #plt.show()
 
     # What the fuck is standard error estimate
+
+    if True:
+        stde = []
+        with alive_bar(len(NList), title="Processing STDE") as bar:
+            for N in NList:
+                stde.append(STDE(N, avg_iterations))
+                bar()
+
+        #plt.title(f"Standard error estimate for random walk with rnd.random()")
+        plt.xlabel('Number of steps')
+        #plt.ylabel('Standard error estimate')
+        plt.plot(NList, stde, label="SEE")
+
+    plt.title("RMSD, RMSF and SEE for random walk with rnd.random()")
+    plt.legend()
+    plt.show()
 
 #############################################################################################################
 
@@ -195,7 +234,7 @@ def self_avoiding_walk_2(N):
     return points
 
 
-def d_1(show_plot=True, NList=list(range(0, 20, 2)), iterations=1000):
+def d_1(show_plot=True, NList=list(range(1, 25, 2)), iterations=1000):
     successFraction = [0, ] * len(NList)
 
     with alive_bar(len(NList), title="Processing success of self avoiding walk 1") as bar:
@@ -222,12 +261,15 @@ def d_1(show_plot=True, NList=list(range(0, 20, 2)), iterations=1000):
 
     if show_plot:
         plt.plot(NList, successFraction)
+        plt.title("Self-avoiding random walk using algorithm 1")
+        plt.xlabel("Number of steps in walk")
+        plt.ylabel("Success-rate")
         plt.show()
 
     return successFraction
 
 
-def d_2(show_plot=True, NList=list(range(0, 50, 2)), iterations=1000):
+def d_2(show_plot=True, NList=list(range(1, 60, 2)), iterations=1000):
     successFraction = [0, ] * len(NList)
 
     with alive_bar(len(NList), title="Processing success of self avoiding walk 2") as bar:
@@ -254,6 +296,9 @@ def d_2(show_plot=True, NList=list(range(0, 50, 2)), iterations=1000):
 
     if show_plot:
         plt.plot(NList, successFraction)
+        plt.title("Self-avoiding random walk using algorithm 2")
+        plt.xlabel("Number of steps in walk")
+        plt.ylabel("Success-rate")
         plt.show()
 
     return successFraction
@@ -271,10 +316,23 @@ def d_3():
         improvement[i] = (walk2[i] - walk1[i]) / walk1[i]
     
     plt.plot(NList, improvement)
+    plt.title("Alorithm 2 improvement over algorithm 1")
+    plt.xlabel("Number of steps in walk")
+    plt.ylabel("Success-rate improvement")
     plt.show()
 
 
 def e():
+    def random_func(): return int(rnd.random() * 4)
+    def RMSD2(N, iterations):
+        """Root-mean-squared end-to-end distance"""
+        dist_squared = []
+        for i in range(iterations):
+            points = walk(N, random_func)
+            dist_squared.append(walk_length_squared(points))
+
+        return np.sqrt(np.average(dist_squared))
+
     def RMSD(N, iterations):
         """Root-mean-squared end-to-end distance"""
         dist_squared = []
@@ -295,8 +353,8 @@ def e():
 
     #########################################################################################################
     # Variables
-    NList = list(range(0, 70))
-    avg_iterations = 100
+    NList = list(range(0, 60, 2))
+    avg_iterations = 1000
 
     rmsd = []
     with alive_bar(len(NList), title="Processing RMSD") as bar:
@@ -304,10 +362,18 @@ def e():
             rmsd.append(RMSD(N, avg_iterations))
             bar()
 
-    plt.title(f"RMSD for self avoiding random walk")
+    rmsd2 = []
+    with alive_bar(len(NList), title="Processing RMSD 2") as bar:
+        for N in NList:
+            rmsd2.append(RMSD2(N, avg_iterations))
+            bar()
+
+    plt.title(f"RMSD for random walk")
     plt.xlabel('Number of steps')
     plt.ylabel('RMSD')
-    plt.plot(NList, rmsd)
+    plt.loglog(NList, rmsd, label="Self-avoiding")
+    plt.loglog(NList, rmsd2, label="Self-colliding")
+    plt.legend()
     plt.tight_layout()  # adapt the plot area tot the text with larger fonts
     plt.show()
 
