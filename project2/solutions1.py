@@ -11,6 +11,9 @@ def walk(N, random_func):
     points = pnt.Points()   # Store the points
 
     for i in range(N):
+       points = pnt.Points()   # Store the points
+
+    for i in range(N):
         R = random_func()   # Random number between 0 and 1
 
         if R < 2:   # Move on the x axis
